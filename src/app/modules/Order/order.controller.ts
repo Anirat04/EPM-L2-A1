@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import { OrderServices } from "./order.service";
+import orderValidationSchema from "./order.zod.validation";
 
 const createOrder = async (req: Request, res: Response) => {
   try {
     const orderData = req.body;
-    const result = await OrderServices.createOrderIntoDB(orderData);
+    const parseData = orderValidationSchema.parse(orderData);
+    const result = await OrderServices.createOrderIntoDB(parseData);
     res.status(200).json({
       success: true,
       message: "Order created successfully!",
@@ -27,6 +29,10 @@ const createOrder = async (req: Request, res: Response) => {
     res.status(statusCode).json({
       success: false,
       message: responseMessage,
+      // error: error,
+      error: error?.issues?.map(
+        (item: any, index: number) => `${index + 1 + "." + item.message}`
+      ),
     });
   }
 };
@@ -41,7 +47,7 @@ const getAllOrders = async (req: Request, res: Response) => {
       if (result.length === 0) {
         return res.status(404).json({
           success: false,
-          message: `Product not found`,
+          message: `Order not found`,
         });
       }
       res.status(200).json({
