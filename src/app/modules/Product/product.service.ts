@@ -27,7 +27,7 @@ const getSingleProductFromDB = async (productId: string) => {
 };
 
 // 4. Update Product Information
-const updateProductInfoFromBD = async (id: string, productData: TProduct) => {
+const updateProductInfoFromDB = async (id: string, productData: TProduct) => {
   //   const result = await Product.findByIdAndUpdate(id, productData, {
   //     new: true,
   //     runValidators: true,
@@ -35,12 +35,18 @@ const updateProductInfoFromBD = async (id: string, productData: TProduct) => {
   const result = await Product.findByIdAndUpdate(id, productData);
   return result;
 };
+
 // 5. Delete a Product
+const deleteProductFromDB = async (id: string) => {
+  const result = await Product.findByIdAndDelete(id);
+  return result;
+};
 // 6. Search a product
 
 export const ProductServices = {
   createProductIntoDB,
   getAllProductsFromDB,
   getSingleProductFromDB,
-  updateProductInfoFromBD,
+  updateProductInfoFromDB,
+  deleteProductFromDB,
 };

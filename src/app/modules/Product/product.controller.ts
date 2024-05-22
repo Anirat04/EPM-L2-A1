@@ -59,7 +59,7 @@ const updateProductInfo = async (req: Request, res: Response) => {
   try {
     const id = req.params.productId;
     const { product: productData } = req.body;
-    const result = await ProductServices.updateProductInfoFromBD(
+    const result = await ProductServices.updateProductInfoFromDB(
       id,
       productData
     );
@@ -78,9 +78,41 @@ const updateProductInfo = async (req: Request, res: Response) => {
   }
 };
 
+const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.productId;
+
+    // Check if the product exists
+    const product = await ProductServices.getSingleProductFromDB(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: `Product with id ${id} not found.`,
+        data: null,
+      });
+    }
+
+    // Delete the product if it exists in the collection
+    await ProductServices.deleteProductFromDB(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted successfully!",
+      data: null,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: true,
+      message: "Something went wrong! Product couldn't updated",
+      error,
+    });
+  }
+};
+
 export const ProductControllers = {
   createProduct,
   getAllProducts,
   getSingleProduct,
   updateProductInfo,
+  deleteProduct,
 };
