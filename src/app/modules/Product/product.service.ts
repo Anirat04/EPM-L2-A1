@@ -10,8 +10,8 @@ const createProductIntoDB = async (productData: TProduct) => {
 
 // 2. Retrieve a List of All Products
 const getAllProductsFromDB = async () => {
-  //   const result = await Product.find();
-  //   return result;
+  // const result = await Product.find();
+  // return result;
   const result = await Product.find().lean().select("-__v -_id -variants._id");
   return result;
 };
