@@ -3,7 +3,7 @@ import { ProductServices } from "./product.service";
 
 const createProduct = async (req: Request, res: Response) => {
   try {
-    const { product: ProductData } = req.body;
+    const ProductData = req.body;
     const result = await ProductServices.createProductIntoDB(ProductData);
 
     res.status(200).json({
@@ -76,10 +76,11 @@ const getSingleProduct = async (req: Request, res: Response) => {
   }
 };
 
+//TODO: Meaningful response if the product is not exists
 const updateProductInfo = async (req: Request, res: Response) => {
   try {
     const id = req.params.productId;
-    const { product: productData } = req.body;
+    const productData = req.body;
     const result = await ProductServices.updateProductInfoFromDB(
       id,
       productData

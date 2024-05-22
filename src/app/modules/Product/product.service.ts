@@ -16,13 +16,13 @@ const getAllProductsFromDB = async () => {
   return result;
 };
 
-// Search Products based on searchTerm
+// 6. Search a product
 const searchProductsFromDB = async (searchTerm: string) => {
   const result = await Product.find({
     $or: [
       { name: { $regex: searchTerm } },
       { description: { $regex: searchTerm } },
-      { tags: { $in: [searchTerm] } }, // Match tags array with the regex pattern
+      { tags: { $in: [searchTerm] } },
       { category: { $regex: searchTerm } },
     ],
   })
@@ -48,7 +48,7 @@ const updateProductInfoFromDB = async (id: string, productData: TProduct) => {
   //     new: true,
   //     runValidators: true,
   //   });
-  const result = await Product.findByIdAndUpdate(id, productData);
+  const result = await Product.findByIdAndUpdate(id, productData).lean();
   return result;
 };
 
@@ -57,7 +57,6 @@ const deleteProductFromDB = async (id: string) => {
   const result = await Product.findByIdAndDelete(id);
   return result;
 };
-// 6. Search a product
 
 export const ProductServices = {
   createProductIntoDB,
