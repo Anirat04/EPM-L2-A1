@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ProductServices } from "./product.service";
 import productValidationSchema from "./product.zod.validation";
+import { ZodError, ZodIssue } from "zod";
 
 // 1. Create a New Product
 const createProduct = async (req: Request, res: Response) => {
@@ -14,14 +15,29 @@ const createProduct = async (req: Request, res: Response) => {
       message: "Product created successfully!",
       data: result,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: `Something Went Wrong!!`,
-      error: error.issues.map(
-        (item: any, index: number) => `${index + 1 + "." + item.message}`
-      ),
-    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: `Validation Failed`,
+        error: error.errors.map(
+          (item, index) => `${index + 1}. ${item.message}`
+        ),
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: `Something Went Wrong!!`,
+        error: (error as Error).message,
+      });
+    }
+    // res.status(500).json({
+    //   success: false,
+    //   message: `Something Went Wrong!!`,
+    //   error: error.issues.map(
+    //     (item: any, index: number) => `${index + 1 + "." + item.message}`
+    //   ),
+    // });
   }
 };
 
@@ -68,13 +84,14 @@ const getSingleProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
     const result = await ProductServices.getSingleProductFromDB(productId);
+
     res.status(200).json({
       success: true,
       message: "Product fetched successfully!",
       data: result,
     });
-  } catch (error: any) {
-    if (error.message === "Product not found") {
+  } catch (error) {
+    if (error instanceof Error && error.message === "Product not found") {
       res.status(404).json({
         success: false,
         message: error.message,
@@ -103,19 +120,25 @@ const updateProductInfo = async (req: Request, res: Response) => {
       message: "Product updated successfully!",
       data: result,
     });
-  } catch (error: any) {
-    if (error.message === "Product not found") {
+  } catch (error) {
+    if (error instanceof Error && error.message === "Product not found") {
       res.status(404).json({
         success: false,
         message: error.message,
       });
+    } else if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: error.issues.map(
+          (item: ZodIssue, index: number) => `${index + 1 + "." + item.message}`
+        ),
+      });
     } else {
       res.status(500).json({
         success: false,
-        message: "Something went wrong! Couldn't update the product",
-        error: error.issues.map(
-          (item: any, index: number) => `${index + 1 + "." + item.message}`
-        ),
+        message: "Something went wrong! Couldn't fetch the product",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -132,8 +155,8 @@ const deleteProduct = async (req: Request, res: Response) => {
       message: "Product deleted successfully!",
       data: null,
     });
-  } catch (error: any) {
-    if (error.message === "Product not found") {
+  } catch (error) {
+    if (error instanceof Error && error.message === "Product not found") {
       res.status(404).json({
         success: false,
         message: error.message,

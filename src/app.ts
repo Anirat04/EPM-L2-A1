@@ -16,4 +16,21 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello Developers!");
 });
 
+app.all("*", (req: Request, res: Response) => {
+  res.status(400).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+
+// global error handler
+// app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+//   if (error) {
+//     res.status(400).json({
+//       success: false,
+//       message: "Route not found",
+//     });
+//   }
+// });
+
 export default app;

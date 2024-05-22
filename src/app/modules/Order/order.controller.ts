@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { OrderServices } from "./order.service";
 import orderValidationSchema from "./order.zod.validation";
+// import { ZodIssue } from "zod";
 
 const createOrder = async (req: Request, res: Response) => {
   try {
@@ -12,14 +13,15 @@ const createOrder = async (req: Request, res: Response) => {
       message: "Order created successfully!",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error) {
     let statusCode = 500;
     let responseMessage = "Order couldn't be completed";
 
-    if (error.message === "Product not found") {
+    if (error instanceof Error && error.message === "Product not found") {
       statusCode = 404;
       responseMessage = "Product not found";
     } else if (
+      error instanceof Error &&
       error.message === "Insufficient quantity available in inventory"
     ) {
       statusCode = 400;
@@ -29,9 +31,8 @@ const createOrder = async (req: Request, res: Response) => {
     res.status(statusCode).json({
       success: false,
       message: responseMessage,
-      // error: error,
-      error: error?.issues?.map(
-        (item: any, index: number) => `${index + 1 + "." + item.message}`
+      error: (error as { issues: { message: string }[] })?.issues?.map(
+        (item, index) => `${index + 1 + "." + item.message}`
       ),
     });
   }
