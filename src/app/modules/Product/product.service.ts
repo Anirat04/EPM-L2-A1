@@ -10,10 +10,10 @@ const createProductIntoDB = async (productData: TProduct) => {
 
 // 2. Retrieve a List of All Products
 const getAllProductsFromDB = async () => {
-  // const result = await Product.find();
-  // return result;
-  const result = await Product.find().lean().select("-__v -_id -variants._id");
+  const result = await Product.find();
   return result;
+  // const result = await Product.find().lean().select("-__v -_id -variants._id");
+  // return result;
 };
 
 // 6. Search a product
@@ -25,35 +25,48 @@ const searchProductsFromDB = async (searchTerm: string) => {
       { tags: { $in: [searchTerm] } },
       { category: { $regex: searchTerm } },
     ],
-  })
-    .lean()
-    .select("-__v -_id -variants._id");
+  });
+  // .lean()
+  // .select("-__v -_id -variants._id");
   return result;
 };
 ////////////////
 
 // 3. Retrieve a Specific Product by ID
 const getSingleProductFromDB = async (productId: string) => {
-  //   const result = await Product.findById(productId);
-  //   return result;
-  const result = await Product.findById(productId)
-    .lean()
-    .select("-__v -_id -variants._id");
+  const result = await Product.findById(productId);
+  if (!result) {
+    throw new Error("Product not found");
+  }
   return result;
+  // const result = await Product.findById(productId)
+  //   .lean()
+  //   .select("-__v -_id -variants._id");
+  // return result;
 };
 
 // 4. Update Product Information
 const updateProductInfoFromDB = async (id: string, productData: TProduct) => {
-  //   const result = await Product.findByIdAndUpdate(id, productData, {
-  //     new: true,
-  //     runValidators: true,
-  //   });
-  const result = await Product.findByIdAndUpdate(id, productData).lean();
+  // Check if the product exists
+  const existingProduct = await Product.findById(id);
+  if (!existingProduct) {
+    throw new Error("Product not found");
+  }
+
+  const result = await Product.findByIdAndUpdate(id, productData, {
+    new: true,
+    runValidators: true,
+  });
+  // const result = await Product.findByIdAndUpdate(id, productData).lean();
   return result;
 };
 
 // 5. Delete a Product
 const deleteProductFromDB = async (id: string) => {
+  const existingProduct = await Product.findById(id);
+  if (!existingProduct) {
+    throw new Error("Product not found");
+  }
   const result = await Product.findByIdAndDelete(id);
   return result;
 };

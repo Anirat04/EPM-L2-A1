@@ -38,7 +38,8 @@ const getAllOrdersFromDB = async () => {
 };
 
 const getOrdersByEmailFromDB = async (email: string) => {
-  const result = await Order.find({ email }).lean();
+  const result = await Order.find({ email });
+  //   .lean();
   // .select("-__v -_id -variants._id");
   return result;
 };
