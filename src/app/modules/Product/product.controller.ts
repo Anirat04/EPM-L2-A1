@@ -55,8 +55,32 @@ const getSingleProduct = async (req: Request, res: Response) => {
   }
 };
 
+const updateProductInfo = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.productId;
+    const { product: productData } = req.body;
+    const result = await ProductServices.updateProductInfoFromBD(
+      id,
+      productData
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully!",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: true,
+      message: "Something went wrong! Product couldn't updated",
+      error,
+    });
+  }
+};
+
 export const ProductControllers = {
   createProduct,
   getAllProducts,
   getSingleProduct,
+  updateProductInfo,
 };
