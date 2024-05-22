@@ -16,6 +16,22 @@ const getAllProductsFromDB = async () => {
   return result;
 };
 
+// Search Products based on searchTerm
+const searchProductsFromDB = async (searchTerm: string) => {
+  const result = await Product.find({
+    $or: [
+      { name: { $regex: searchTerm } },
+      { description: { $regex: searchTerm } },
+      { tags: { $in: [searchTerm] } }, // Match tags array with the regex pattern
+      { category: { $regex: searchTerm } },
+    ],
+  })
+    .lean()
+    .select("-__v -_id -variants._id");
+  return result;
+};
+////////////////
+
 // 3. Retrieve a Specific Product by ID
 const getSingleProductFromDB = async (productId: string) => {
   //   const result = await Product.findById(productId);
@@ -49,4 +65,5 @@ export const ProductServices = {
   getSingleProductFromDB,
   updateProductInfoFromDB,
   deleteProductFromDB,
+  searchProductsFromDB,
 };
